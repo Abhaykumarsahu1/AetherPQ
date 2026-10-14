@@ -1,3 +1,4 @@
+import { migrate } from "./migrate";
 // Ensure your WASM package is built and in the correct location (src/pkg)
 import init, { assess_wallet } from './pkg/scanner_core.js';
 
@@ -305,3 +306,14 @@ async function scanWallet(): Promise<void> {
 
 // Bind event listener
 document.querySelector('#scanBtn')?.addEventListener('click', scanWallet);
+
+document.getElementById("migrateBtn")?.addEventListener("click", async () => {
+  const out = document.getElementById("migrateStatus")!;
+  const scanned = (document.getElementById("wallet") as HTMLInputElement).value.trim();
+  try {
+    const r = await migrate(scanned, (s) => (out.textContent = s));
+    out.textContent = `Deployed! Wallet ${r.wallet} | tx ${r.tx} | gas ${r.gasUsed}`;
+  } catch (e: any) {
+    out.textContent = "Failed: " + (e?.shortMessage ?? e?.message ?? String(e));
+  }
+});
